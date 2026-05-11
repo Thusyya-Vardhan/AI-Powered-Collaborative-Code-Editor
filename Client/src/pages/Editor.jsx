@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import MonacoEditor from '@monaco-editor/react'
 import axios from 'axios'
 import { useParams, useNavigate } from 'react-router-dom'
+import { io } from 'socket.io-client'
+
+const socket = io('http://localhost:5000')
 
 function Editor() {
   const [code, setCode] = useState('')
@@ -9,6 +12,7 @@ function Editor() {
   const [session, setSession] = useState(null)
   const { roomId } = useParams()
   const navigate = useNavigate()
+  const isRemoteChange = useRef(false)
 
   const token = localStorage.getItem('token')
 
@@ -25,8 +29,23 @@ function Editor() {
     }
   }
 
+  const handleCodeChange = (value) => {
+    setCode(value)
+    socket.emit('code-change', { roomId, code: value })
+  }
+
   useEffect(() => {
     fetchSession()
+    socket.emit('join-room', roomId)
+
+    socket.on('code-update', (newCode) => {
+      isRemoteChange.current = true
+      setCode(newCode)
+    })
+
+    return () => {
+      socket.off('code-update')
+    }
   }, [])
 
   return (
@@ -45,7 +64,7 @@ function Editor() {
         height="90vh"
         language={language}
         value={code}
-        onChange={(value) => setCode(value)}
+        onChange={handleCodeChange}
         theme="vs-dark"
         options={{
           fontSize: 14,
