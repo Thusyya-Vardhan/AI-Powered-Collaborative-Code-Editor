@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
+import Editor from './pages/Editor'
 import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
@@ -13,6 +14,11 @@ function App() {
         <Route path='/dashboard' element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        } />
+        <Route path='/editor/:roomId' element={
+          <ProtectedRoute>
+            <Editor />
           </ProtectedRoute>
         } />
       </Routes>
