@@ -2,7 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const authRoutes = require('./routes/auth')
-const authMiddleware = require('./middleware/auth')
+const sessionRoutes = require('./routes/sessions')
 
 const app = express()
 
@@ -14,10 +14,7 @@ mongoose.connect('mongodb://localhost:27017/studyplatform')
   .catch((err) => console.log(err))
 
 app.use('/api/auth', authRoutes)
-
-app.get('/api/protected', authMiddleware, (req, res) => {
-  res.json({ message: `Hello user ${req.user.id}` })
-})
+app.use('/api/sessions', sessionRoutes)
 
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' })
