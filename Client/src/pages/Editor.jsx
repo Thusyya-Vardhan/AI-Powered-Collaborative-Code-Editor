@@ -10,6 +10,7 @@ function Editor() {
   const [code, setCode] = useState('')
   const [language, setLanguage] = useState('javascript')
   const [session, setSession] = useState(null)
+  const [output, setOutput] = useState('')
   const { roomId } = useParams()
   const navigate = useNavigate()
   const isRemoteChange = useRef(false)
@@ -34,6 +35,18 @@ function Editor() {
     socket.emit('code-change', { roomId, code: value })
   }
 
+const runCode = async () => {
+  try {
+    const res = await axios.post('http://localhost:5000/api/execute',
+      { code, language },
+      { headers: { Authorization: `Bearer ${token}` } }
+    )
+    setOutput(res.data.output || 'No output')
+  } catch (err) {
+    setOutput('Error: ' + err.message)
+  }
+}
+
   useEffect(() => {
     fetchSession()
     socket.emit('join-room', roomId)
@@ -54,6 +67,9 @@ function Editor() {
         <h2>{session?.name}</h2>
         <div>
           <span>Room ID: {roomId}</span>
+          <button onClick={runCode} style={{ marginLeft: '10px' }}>
+            Run
+          </button>
           <button onClick={() => navigate('/dashboard')} style={{ marginLeft: '10px' }}>
             Back to Dashboard
           </button>
@@ -61,7 +77,7 @@ function Editor() {
       </div>
 
       <MonacoEditor
-        height="90vh"
+        height="70vh"
         language={language}
         value={code}
         onChange={handleCodeChange}
@@ -72,6 +88,10 @@ function Editor() {
           wordWrap: 'on'
         }}
       />
+
+      <pre style={{ background: '#1e1e1e', color: '#fff', padding: '10px', minHeight: '15vh' }}>
+        {output || 'Output will appear here...'}
+      </pre>
     </div>
   )
 }

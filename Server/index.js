@@ -25,6 +25,9 @@ mongoose.connect('mongodb://localhost:27017/studyplatform')
 app.use('/api/auth', authRoutes)
 app.use('/api/sessions', sessionRoutes)
 
+const executeRoutes = require('./routes/execute')
+app.use('/api/execute', executeRoutes)
+
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id)
 
