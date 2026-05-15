@@ -10,7 +10,7 @@ router.post('/explain', authMiddleware, async (req, res) => {
   try {
     const { code, language } = req.body
     const response = await groq.chat.completions.create({
-      model: 'llama3-8b-8192',
+      model: 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: `Explain this ${language} code in simple terms:\n\n${code}` }]
     })
     res.json({ response: response.choices[0].message.content })
