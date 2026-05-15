@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import API_URL from '../config'
 
 function Dashboard() {
   const [sessions, setSessions] = useState([])
@@ -13,7 +14,7 @@ function Dashboard() {
 
   const fetchSessions = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/sessions', {
+      const res = await axios.get(`${API_URL}/api/sessions`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setSessions(res.data)
@@ -24,7 +25,7 @@ function Dashboard() {
 
   const createRoom = async () => {
     try {
-      const res = await axios.post('http://localhost:5000/api/sessions/create',
+      const res = await axios.post(`${API_URL}/api/sessions/create`,
         { name: roomName, language },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -36,7 +37,7 @@ function Dashboard() {
 
   const joinRoom = async () => {
     try {
-      await axios.post(`http://localhost:5000/api/sessions/join/${joinRoomId}`,
+      await axios.post(`${API_URL}/api/sessions/join/${joinRoomId}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       )

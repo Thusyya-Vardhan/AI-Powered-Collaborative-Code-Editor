@@ -3,8 +3,9 @@ import MonacoEditor from '@monaco-editor/react'
 import axios from 'axios'
 import { useParams, useNavigate } from 'react-router-dom'
 import { io } from 'socket.io-client'
+import API_URL from '../config'
 
-const socket = io('http://localhost:5000')
+const socket = io('API_URL')
 
 function Editor() {
   const [code, setCode] = useState('')
@@ -21,7 +22,7 @@ function Editor() {
 
   const fetchSession = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/sessions/${roomId}`, {
+      const res = await axios.get(`${API_URL}/api/sessions/${roomId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setSession(res.data)
@@ -40,7 +41,7 @@ function Editor() {
   const runCode = async () => {
     setOutput('Running...')
     try {
-      const res = await axios.post('http://localhost:5000/api/execute',
+      const res = await axios.post(`${API_URL}/api/execute`,
         { code, language },
         { headers: { Authorization: `Bearer ${token}` } }
       )
@@ -54,7 +55,7 @@ function Editor() {
     setAiLoading(true)
     setAiResponse('')
     try {
-      const res = await axios.post(`http://localhost:5000/api/ai/${type}`,
+      const res = await axios.post(`${API_URL}/api/ai/${type}`,
         { code, language, error: output },
         { headers: { Authorization: `Bearer ${token}` } }
       )

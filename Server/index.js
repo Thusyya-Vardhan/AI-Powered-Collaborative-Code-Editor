@@ -21,7 +21,7 @@ const io = new Server(server, {
 app.use(cors())
 app.use(express.json())
 
-mongoose.connect('mongodb://localhost:27017/studyplatform')
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.log(err))
 
