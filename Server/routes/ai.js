@@ -24,7 +24,7 @@ router.post('/debug', authMiddleware, async (req, res) => {
   try {
     const { code, language, error } = req.body
     const response = await groq.chat.completions.create({
-      model: 'llama3-8b-8192',
+      model: 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: `Debug this ${language} code. The error is: ${error}\n\nCode:\n${code}\n\nFind the bug and suggest a fix.` }]
     })
     res.json({ response: response.choices[0].message.content })
@@ -38,7 +38,7 @@ router.post('/suggest', authMiddleware, async (req, res) => {
   try {
     const { code, language } = req.body
     const response = await groq.chat.completions.create({
-      model: 'llama3-8b-8192',
+      model: 'llama-3.1-8b-instant',
       messages: [{ role: 'user', content: `Suggest improvements for this ${language} code in terms of performance, readability and best practices:\n\n${code}` }]
     })
     res.json({ response: response.choices[0].message.content })
