@@ -11,6 +11,9 @@ function Editor() {
   const [language, setLanguage] = useState('javascript')
   const [session, setSession] = useState(null)
   const [output, setOutput] = useState('')
+  const [aiResponse, setAiResponse] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
+  const [error, setError] = useState('')
   const { roomId } = useParams()
   const navigate = useNavigate()
   const isRemoteChange = useRef(false)
@@ -35,17 +38,39 @@ function Editor() {
     socket.emit('code-change', { roomId, code: value })
   }
 
-const runCode = async () => {
-  try {
-    const res = await axios.post('http://localhost:5000/api/execute',
-      { code, language },
-      { headers: { Authorization: `Bearer ${token}` } }
-    )
-    setOutput(res.data.output || 'No output')
-  } catch (err) {
-    setOutput('Error: ' + err.message)
+  const languageIds = {
+    javascript: 63,
+    python: 71,
+    cpp: 54,
+    java: 62
   }
-}
+
+  const runCode = async () => {
+    try {
+      const res = await axios.post('http://localhost:5000/api/execute',
+        { code, language },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      setOutput(res.data.output || 'No output')
+    } catch (err) {
+      setOutput('Error: ' + err.message)
+    }
+  }
+
+  const askAI = async (type) => {
+    setAiLoading(true)
+    setAiResponse('')
+    try {
+      const res = await axios.post(`http://localhost:5000/api/ai/${type}`,
+        { code, language, error: output },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      setAiResponse(res.data.response)
+    } catch (err) {
+      setAiResponse('Error: ' + err.message)
+    }
+    setAiLoading(false)
+  }
 
   useEffect(() => {
     fetchSession()
@@ -67,17 +92,16 @@ const runCode = async () => {
         <h2>{session?.name}</h2>
         <div>
           <span>Room ID: {roomId}</span>
-          <button onClick={runCode} style={{ marginLeft: '10px' }}>
-            Run
-          </button>
-          <button onClick={() => navigate('/dashboard')} style={{ marginLeft: '10px' }}>
-            Back to Dashboard
-          </button>
+          <button onClick={runCode} style={{ marginLeft: '10px' }}>Run</button>
+          <button onClick={() => askAI('explain')} style={{ marginLeft: '10px' }}>Explain</button>
+          <button onClick={() => askAI('debug')} style={{ marginLeft: '10px' }}>Debug</button>
+          <button onClick={() => askAI('suggest')} style={{ marginLeft: '10px' }}>Suggest</button>
+          <button onClick={() => navigate('/dashboard')} style={{ marginLeft: '10px' }}>Back</button>
         </div>
       </div>
 
       <MonacoEditor
-        height="70vh"
+        height="60vh"
         language={language}
         value={code}
         onChange={handleCodeChange}
@@ -89,9 +113,14 @@ const runCode = async () => {
         }}
       />
 
-      <pre style={{ background: '#1e1e1e', color: '#fff', padding: '10px', minHeight: '15vh' }}>
-        {output || 'Output will appear here...'}
-      </pre>
+      <div style={{ display: 'flex', height: '25vh' }}>
+        <pre style={{ background: '#1e1e1e', color: '#fff', padding: '10px', width: '50%', overflow: 'auto' }}>
+          {output || 'Output will appear here...'}
+        </pre>
+        <pre style={{ background: '#0d1117', color: '#58a6ff', padding: '10px', width: '50%', overflow: 'auto' }}>
+          {aiLoading ? 'Thinking...' : aiResponse || 'AI response will appear here...'}
+        </pre>
+      </div>
     </div>
   )
 }

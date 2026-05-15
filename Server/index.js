@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
@@ -5,6 +6,8 @@ const http = require('http')
 const { Server } = require('socket.io')
 const authRoutes = require('./routes/auth')
 const sessionRoutes = require('./routes/sessions')
+const aiRoutes = require('./routes/ai')
+const executeRoutes = require('./routes/execute')
 
 const app = express()
 const server = http.createServer(app)
@@ -24,9 +27,8 @@ mongoose.connect('mongodb://localhost:27017/studyplatform')
 
 app.use('/api/auth', authRoutes)
 app.use('/api/sessions', sessionRoutes)
-
-const executeRoutes = require('./routes/execute')
 app.use('/api/execute', executeRoutes)
+app.use('/api/ai', aiRoutes)
 
 io.on('connection', (socket) => {
   console.log('User connected:', socket.id)
